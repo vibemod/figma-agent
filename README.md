@@ -1,187 +1,112 @@
-# Figma MCP Server
+# Figma MCP Server for Cursor
 
-A Model Context Protocol (MCP) server that enables AI assistants like Cursor to interact with Figma designs.
+This guide shows how to configure Cursor to use Figma's official remote MCP server.
+
+## Quick Setup (Recommended)
+
+### Option 1: Deep Link Installation
+
+Click the Figma MCP server deep link from Cursor to automatically configure the connection.
+
+### Option 2: Manual Configuration
+
+Add the following to your Cursor MCP settings file:
+
+**Location:**
+- macOS/Linux: `~/.cursor/mcp.json`
+- Windows: `%USERPROFILE%\.cursor\mcp.json`
+
+```json
+{
+  "mcpServers": {
+    "figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "type": "http"
+    }
+  }
+}
+```
+
+After adding the configuration:
+1. Open Cursor → Settings → Cursor Settings
+2. Go to the **MCP** tab
+3. Click **Connect** next to the Figma server
+4. Complete the OAuth authentication flow
+
+## Alternative: Desktop Server
+
+If you prefer using the Figma desktop app (enables selection-based prompting):
+
+```json
+{
+  "mcpServers": {
+    "figma": {
+      "url": "http://127.0.0.1:3845/mcp",
+      "type": "http"
+    }
+  }
+}
+```
+
+**Note:** The desktop server requires Figma desktop app to be running.
 
 ## Features
 
-- **Get File Information**: Retrieve complete Figma file structure including nodes, components, and styles
-- **Node Operations**: Get specific nodes or search for nodes by name/type
-- **Export Images**: Export any node as PNG, JPG, SVG, or PDF
-- **Comments**: Read and post comments on Figma files
-- **Components & Styles**: List all components and design styles in a file
-- **Project Management**: List team projects and project files
+The Figma MCP server provides AI assistants access to:
 
-## Prerequisites
-
-- Node.js 18.0.0 or higher
-- A Figma account with API access
-- Figma Personal Access Token
-
-## Getting Your Figma Access Token
-
-1. Log in to your Figma account
-2. Go to **Settings** → **Account** → **Personal access tokens**
-3. Click **Create new token**
-4. Give it a name (e.g., "Cursor MCP")
-5. Copy the token (you won't be able to see it again)
-
-Or visit: https://www.figma.com/developers/api#access-tokens
-
-## Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-org/figma-mcp-server.git
-cd figma-mcp-server
-
-# Install dependencies
-npm install
-
-# Build the project
-npm run build
-```
-
-## Configuration for Cursor
-
-Add the following to your Cursor MCP settings file (`~/.cursor/mcp.json` on macOS/Linux or `%USERPROFILE%\.cursor\mcp.json` on Windows):
-
-```json
-{
-  "mcpServers": {
-    "figma": {
-      "command": "node",
-      "args": ["/path/to/figma-mcp-server/dist/index.js"],
-      "env": {
-        "FIGMA_ACCESS_TOKEN": "your-figma-access-token"
-      }
-    }
-  }
-}
-```
-
-Replace:
-- `/path/to/figma-mcp-server` with the actual path to this repository
-- `your-figma-access-token` with your Figma Personal Access Token
-
-### Alternative: Using npx (after publishing)
-
-```json
-{
-  "mcpServers": {
-    "figma": {
-      "command": "npx",
-      "args": ["figma-mcp-server"],
-      "env": {
-        "FIGMA_ACCESS_TOKEN": "your-figma-access-token"
-      }
-    }
-  }
-}
-```
-
-## Available Tools
-
-### File Operations
-
-| Tool | Description |
-|------|-------------|
-| `get_file` | Get a Figma file by its key |
-| `get_file_from_url` | Get a Figma file using its full URL |
-| `get_node` | Get a specific node by ID |
-| `get_nodes` | Get multiple nodes by their IDs |
-| `search_nodes` | Search for nodes by name or type |
-
-### Export
-
-| Tool | Description |
-|------|-------------|
-| `get_images` | Export nodes as images (PNG, JPG, SVG, PDF) |
-
-### Comments
-
-| Tool | Description |
-|------|-------------|
-| `get_comments` | Get all comments on a file |
-| `post_comment` | Post a comment on a file |
-
-### Design System
-
-| Tool | Description |
-|------|-------------|
-| `get_components` | Get all components in a file |
-| `get_styles` | Get all styles in a file |
-
-### Project Management
-
-| Tool | Description |
-|------|-------------|
-| `get_team_projects` | List all projects in a team |
-| `get_project_files` | List all files in a project |
+- **Read Design Files**: Get file structure, nodes, components, and styles
+- **Export Assets**: Export frames and components as images
+- **Access Variables**: Read design tokens and variables
+- **View Comments**: Read comments and discussions on files
 
 ## Usage Examples
 
-Once configured, you can use natural language in Cursor to interact with Figma:
+Once connected, use natural language in Cursor:
 
-### Get file information
 ```
-"Get the structure of my Figma file: https://www.figma.com/file/ABC123/My-Design"
-```
-
-### Search for components
-```
-"Search for all button components in file key XYZ789"
+"Analyze the design at https://www.figma.com/design/ABC123/My-Design"
 ```
 
-### Export a frame as PNG
 ```
-"Export the frame with ID 123:456 from file ABC as a PNG at 2x scale"
-```
-
-### Get design styles
-```
-"What are all the text styles defined in this Figma file?"
+"What components are used in this Figma file?"
 ```
 
-### Post a comment
 ```
-"Add a comment 'Needs review' to the header component in my Figma file"
+"Export the header frame from my design"
 ```
 
-## Development
+## Rate Limits
 
-```bash
-# Run in development mode with hot reload
-npm run dev
+| Plan | Limit |
+|------|-------|
+| Starter / View / Collab seats | 6 tool calls per month |
+| Dev / Full seats (Professional+) | Per-minute limits (Tier 1 API) |
 
-# Build for production
-npm run build
+## Remote vs Desktop Server
 
-# Run production build
-npm start
-```
+| Feature | Remote Server | Desktop Server |
+|---------|---------------|----------------|
+| Selection-based prompting | No | Yes |
+| Requires desktop app | No | Yes |
+| Authentication | OAuth | Local |
+| Works offline | No | Yes (local files) |
 
 ## Troubleshooting
 
-### "FIGMA_ACCESS_TOKEN environment variable is required"
-Make sure you've added your Figma access token to the MCP configuration.
+### Connection Failed
+- Verify the URL is exactly `https://mcp.figma.com/mcp`
+- Check your internet connection
+- Try re-authenticating through Cursor settings
 
-### "Figma API error (403)"
-Your access token may have expired or doesn't have permission to access the requested file.
+### Rate Limit Exceeded
+- Wait for the limit to reset
+- Consider upgrading to a Dev or Full seat for higher limits
 
-### "Invalid Figma URL"
-Make sure you're using a valid Figma file URL (e.g., `https://www.figma.com/file/...` or `https://www.figma.com/design/...`).
+## Resources
 
-## Finding Figma IDs
-
-- **File Key**: The alphanumeric string in the URL after `/file/` or `/design/`
-  - Example: In `https://www.figma.com/file/ABC123xyz/My-File`, the file key is `ABC123xyz`
-
-- **Node ID**: Select a layer in Figma, then look at the URL for `?node-id=X:Y`
-  - Or use the `search_nodes` tool to find nodes by name
-
-- **Team ID**: Go to your team page, the ID is in the URL after `/team/`
-
-- **Project ID**: Go to a project page, the ID is in the URL after `/project/`
+- [Figma MCP Server Documentation](https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/)
+- [Figma Help Center - MCP Setup](https://help.figma.com/hc/en-us/articles/35281350665623-Figma-MCP-collection-How-to-set-up-the-Figma-remote-MCP-server)
+- [Figma MCP Server Guide (GitHub)](https://github.com/figma/mcp-server-guide/)
 
 ## License
 
